@@ -5,13 +5,12 @@ from sklearn.model_selection import train_test_split
 # Add the necessary imports for the starter code.
 import pandas as pd
 
-from joblib import dump
+import joblib
 from sklearn.model_selection import train_test_split
 from .ml.data import process_data
 from .ml.model import train_model, inference, compute_model_metrics  
 
-DATA_PATH = "../data/clean_census.csv"
-MODEL_PATH = "../model/random_forest_model.pkl"
+
 
 # Add code to load in the data.
 def load_data(data_path):
@@ -22,19 +21,10 @@ def load_data(data_path):
     return train, test
 # Optional enhancement, use K-fold cross validation instead of a train-test split.
 
-cat_features = [
-    "workclass",
-    "education",
-    "marital-status",
-    "occupation",
-    "relationship",
-    "race",
-    "sex",
-    "native-country",
-]
 
 
-def train_model(train, model_path, cat_features, label="salary"):
+
+def trainer(train, model_path, cat_features, label="salary"):
 
     X_train, y_train, encoder, lb = process_data(
         train, categorical_features=cat_features, label=label, training=True
@@ -43,13 +33,52 @@ def train_model(train, model_path, cat_features, label="salary"):
     # Train and save a model.
     model = train_model(X_train, y_train)
 
-    dump((model, encoder, lb), model_path)
+    joblib.dump((model, encoder, lb), model_path)
 
 def batch_inference(test_data, model_path, cat_features, label="salary"):
-    pass
+    model, encoder, lb = joblib.load(model_path)
 
     # Proces the test data with the process_data function.
+    X_test, y_test, encoder, lb = process_data(
+        test_data,
+        categorical_features=cat_features,
+        label=label,
+        training=False,
+        encoder=encoder,
+        lb=lb,
+    )
 
-if __name__ == "__main__":
-    train, test = load_data(DATA_PATH)
-    train_model(train, MODEL_PATH, cat_features)
+    # Evaluate model
+    preds = inference(model=model, X=X_test)
+    precision, recall, fbeta = compute_model_metrics(y_test, preds)
+    print('Precision:\t', precision)
+    print('Recall:\t', recall)
+    print('F-beta score:\t', fbeta)
+
+    return precision, recall, fbeta
+
+def online_inference(row_dict, model_path, cat_features):
+    # load the model from `model_path`
+    model, encoder, lb = joblib.load(model_path)
+
+    row_transformed = list()
+    X_categorical = list()
+    X_continuous = list()
+
+    for key, value in row_dict.items():
+        mod_key = key.replace('_', '-')
+        if mod_key in cat_features:
+            X_categorical.append(value)
+        else:
+            X_continuous.append(value)
+
+    y_cat = encoder.transform([X_categorical])
+    y_conts = np.asarray([X_continuous])
+
+    row_transformed = np.concatenate([y_conts, y_cat], axis=1)
+
+    # get inference from model
+    preds = inference(model=model, X=row_transformed)
+
+    return '>50K' if preds[0] else '<=50K'
+
