@@ -1,0 +1,29 @@
+import requests
+
+
+data = {
+    "age": 59,
+    "workclass": "Private",
+    "fnlwgt": 109015,
+    "education": "HS-grad",
+    "education_num": 9,
+    "marital_status": "Divorced",
+    "occupation": "Tech-support",
+    "relationship": "Unmarried",
+    "race": "White",
+    "sex": "Female",
+    "capital_gain": 0,
+    "capital_loss": 0,
+    "hours_per_week": 40,
+    "native_country": "United-States"
+    }
+
+
+URL = "https://mldevops-project.herokuapp.com/inference"
+
+response = requests.post(URL, json=data)
+assert response.status_code == 200
+
+print("Test app Heroku, url: ", URL)
+print(f"Response code: {response.status_code}")
+print(f"Response body: {response.json()}")
