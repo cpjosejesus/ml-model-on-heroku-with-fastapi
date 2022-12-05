@@ -5,6 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
 
 from starter.train_model import online_inference
+import os
 
 app = FastAPI()
 
@@ -36,6 +37,12 @@ class RowData(BaseModel):
     hours_per_week: int = Field(..., example=50)
     native_country: str = Field(..., example="United-States")
 
+
+if "DYNO" in os.environ and os.path.isdir(".dvc"):
+    os.system("dvc config core.no_scm true")
+    if os.system("dvc pull") != 0:
+        exit("dvc pull failed")
+    os.system("rm -r .dvc .apt/usr/lib/dvc")
 
 
 @app.get("/")
