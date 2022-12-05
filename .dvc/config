@@ -1,0 +1,4 @@
+[core]
+    remote = mldevops-bucket-project
+['remote "mldevops-bucket-project"']
+    url = s3://mldevops-bucket-project/ml_devops
