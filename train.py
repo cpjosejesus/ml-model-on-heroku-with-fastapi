@@ -8,6 +8,7 @@ from starter.train_model import load_data, trainer, batch_inference
 
 DATA_PATH = "./data/clean_census.csv"
 MODEL_PATH = "./model/random_forest_model.pkl"
+ROOT_PATH = "./model/"
 
 cat_features = [
     "workclass",
