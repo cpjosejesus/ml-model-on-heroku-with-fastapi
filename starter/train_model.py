@@ -24,7 +24,7 @@ def load_data(data_path):
 
 
 
-def trainer(train, model_path, cat_features, label="salary"):
+def trainer(train, model_path,  root_path, cat_features, label="salary"):
 
     X_train, y_train, encoder, lb = process_data(
         train, categorical_features=cat_features, label=label, training=True
@@ -34,6 +34,9 @@ def trainer(train, model_path, cat_features, label="salary"):
     model = train_model(X_train, y_train)
 
     joblib.dump((model, encoder, lb), model_path)
+
+    joblib.dump(encoder, root_path+"predictor_encoder.joblib")
+    joblib.dump(lb, root_path+"redictor_lb.joblib")
 
 def batch_inference(test_data, model_path, cat_features, label="salary"):
     model, encoder, lb = joblib.load(model_path)
@@ -51,6 +54,7 @@ def batch_inference(test_data, model_path, cat_features, label="salary"):
     # Evaluate model
     preds = inference(model=model, X=X_test)
     precision, recall, fbeta = compute_model_metrics(y_test, preds)
+
     print('Precision:\t', precision)
     print('Recall:\t', recall)
     print('F-beta score:\t', fbeta)
