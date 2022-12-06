@@ -63,3 +63,4 @@ def inference(model, X):
     predictions = model.predict(X)
 
     return predictions
+    
