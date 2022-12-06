@@ -1,0 +1,4 @@
+outs:
+- md5: 5e12f0952f8e51554af23ad92bd2a025
+  size: 4012
+  path: predictor_encoder.joblib
